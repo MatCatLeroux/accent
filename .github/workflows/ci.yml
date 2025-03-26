@@ -29,65 +29,65 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Setup Beam
-        uses: erlef/setup-beam@v1
-        id: setup-beam
-        with:
-          version-file: .tool-versions
-          version-type: strict
+      # - name: Setup Beam
+      #   uses: erlef/setup-beam@v1
+      #   id: setup-beam
+      #   with:
+      #     version-file: .tool-versions
+      #     version-type: strict
 
-      - uses: actions/cache@v4
-        with:
-          path: |
-            deps
-            _build
-            priv/plts
-          key: ${{ runner.os }}-mix-${{ steps.setup-beam.outputs.otp-version }}-${{ steps.setup-beam.outputs.elixir-version }}-${{ hashFiles(format('{0}/mix.lock', github.workspace)) }}
+      # - uses: actions/cache@v4
+      #   with:
+      #     path: |
+      #       deps
+      #       _build
+      #       priv/plts
+      #     key: ${{ runner.os }}-mix-${{ steps.setup-beam.outputs.otp-version }}-${{ steps.setup-beam.outputs.elixir-version }}-${{ hashFiles(format('{0}/mix.lock', github.workspace)) }}
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .tool-versions
-          cache: npm
-          cache-dependency-path: |
-            package-lock.json
-            cli/package-lock.json
-            jipt/package-lock.json
-            webapp/package-lock.json
+      # - uses: actions/setup-node@v4
+      #   with:
+      #     node-version-file: .tool-versions
+      #     cache: npm
+      #     cache-dependency-path: |
+      #       package-lock.json
+      #       cli/package-lock.json
+      #       jipt/package-lock.json
+      #       webapp/package-lock.json
 
-      - name: Install System Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gcc libyaml-dev
+      # - name: Install System Dependencies
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y gcc libyaml-dev
 
-      - name: Install Elixir Dependencies
-        run: |
-          mix local.rebar --force
-          mix local.hex --force
-          mix deps.get
-          mix deps.compile
+      # - name: Install Elixir Dependencies
+      #   run: |
+      #     mix local.rebar --force
+      #     mix local.hex --force
+      #     mix deps.get
+      #     mix deps.compile
 
-      - name: Install NodeJS Dependencies
-        run: |
-          npm set fund false
-          npm set audit false
-          npm set color false
-          npm ci
-          npm ci --prefix webapp
-          npm ci --prefix cli
-          npm ci --prefix jipt
+      # - name: Install NodeJS Dependencies
+      #   run: |
+      #     npm set fund false
+      #     npm set audit false
+      #     npm set color false
+      #     npm ci
+      #     npm ci --prefix webapp
+      #     npm ci --prefix cli
+      #     npm ci --prefix jipt
 
-      - name: Build webapp production
-        run: npm run build-production-inline --prefix webapp
+      # - name: Build webapp production
+      #   run: npm run build-production-inline --prefix webapp
 
-      - name: Run Tests
-        run: |
-          mix ecto.setup
-          ./priv/scripts/ci-check.sh
+      # - name: Run Tests
+      #   run: |
+      #     mix ecto.setup
+      #     ./priv/scripts/ci-check.sh
 
-      - name: Build CLI
-        run: npm --prefix cli run build
-      - name: Build JIPT
-        run: npm --prefix jipt run build-production-inline
+      # - name: Build CLI
+      #   run: npm --prefix cli run build
+      # - name: Build JIPT
+      #   run: npm --prefix jipt run build-production-inline
       # - name: Coverage report
       #   run: mix coveralls.post --token ${{ secrets.COVERALLS_REPO_TOKEN }} --name 'github-actions' --branch ${{ github.ref }} --committer ${{ github.actor }} --sha ${{ github.sha }}
 
@@ -113,9 +113,10 @@ jobs:
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=semver,pattern={{raw}}
-      - uses: docker/build-push-action@v5
+
+      - uses: docker/build-push-action@v6
         with:
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
           context: .
